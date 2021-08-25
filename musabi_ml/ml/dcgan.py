@@ -15,7 +15,7 @@ from tensorflow.keras.layers import (
     Reshape,
 )
 from tensorflow.keras.optimizers import Adam
-from typing import Dict, Final
+from typing import Final, List, Tuple
 
 from musabi_ml.ml.gan import GAN
 
@@ -75,7 +75,7 @@ class DCGAN(GAN):
         real_images: np.ndarray,  # real_images.shape => (data_size, height, width, RGB)
         batch_size: int,
         epochs: int,
-    ) -> Dict:  # {'loss': [2.5682957129902206e-05]}
+    ) -> Tuple[List, List]:
         losses = []
         generated_images = []
         batches = int(real_images.shape[0] / batch_size)
@@ -106,21 +106,33 @@ class DCGAN(GAN):
                 noise = np.random.normal(0, 1, (batch_size * 2, self.settings.z_dim))
                 generator_loss = self.dcgan.train_on_batch(noise, np.ones(batch_size * 2))
 
-                losses.append(
-                    DCGANLoss(
-                        discriminator_loss=discriminator_loss_mean,
-                        discriminator_real_loss=discriminator_real_loss,
-                        discriminator_fake_loss=discriminator_fake_loss,
-                        generator_loss=generator_loss,
-                    )
+            losses.append(
+                DCGANLoss(
+                    discriminator_loss=discriminator_loss_mean,
+                    discriminator_real_loss=discriminator_real_loss,
+                    discriminator_fake_loss=discriminator_fake_loss,
+                    generator_loss=generator_loss,
                 )
-                generated_images.append(fake_images_batch[0] * 127.5 + 127.5)
+            )
+            generated_images.append(fake_images_batch[0] * 127.5 + 127.5)
+            self.print_loss(losses, epoch)
+        return losses, generated_images
 
     def predict(self, noise):
         return self.generator.predict(noise)
 
     def save(self, output_dir_path: Path):
         self.generator.save(str(output_dir_path))
+
+    def print_loss(self, losses, epoch):
+        loss: DCGANLoss = losses[-1]
+        loss_info = f"epoch: {epoch}, " \
+            f"discriminator_loss: {loss.discriminator_loss}, " \
+            f"generator_loss: {loss.generator_loss}"
+        print(loss_info)
+
+    # def save_image(self, epoch, batch, gen_img):
+    #     image_util.save_image(gen_img, self.output_img_dir, f"{epoch}_{batch}.jpg")
 
 
 def create_generator(z: int):
