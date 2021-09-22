@@ -1,7 +1,7 @@
 import random
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Final, List
+from typing import Final, List, Optional
 
 import numpy as np
 from tensorflow.keras.layers import (Activation, BatchNormalization, Conv2D,
@@ -69,7 +69,7 @@ class DCGAN(GAN):
         real_images: np.ndarray,  # real_images.shape => (data_size, height, width, RGB)
         batch_size: int,
         epochs: int,
-        image_path: Path = None,
+        image_dir_path: Optional[Path] = None,
     ) -> List:
         losses = []
         batches = int(real_images.shape[0] / batch_size)
@@ -108,9 +108,13 @@ class DCGAN(GAN):
                     generator_loss=generator_loss,
                 )
             )
-            self.print_loss(losses[-1], epoch)
-            if image_path:
-                save_image(fake_images_batch[0] * 127.5 + 127.5)
+            self._print_loss(losses[-1], epoch)
+            if image_dir_path:
+                save_image(
+                    fake_images_batch[0] * 127.5 + 127.5,
+                    image_dir_path,
+                    f"{epoch}_{batch}.jpg"
+                )
         return losses
 
     def predict(self, noise):
@@ -119,14 +123,11 @@ class DCGAN(GAN):
     def save(self, output_dir_path: Path) -> None:
         self.generator.save(str(output_dir_path))
 
-    def print_loss(self, loss: DCGANLoss, epoch: int) -> None:
+    def _print_loss(self, loss: DCGANLoss, epoch: int) -> None:
         loss_info = f"epoch: {epoch} -> " \
             f"discriminator_loss: {loss.discriminator_loss}, " \
             f"generator_loss: {loss.generator_loss}"
         print(loss_info)
-
-    # def save_image(self, epoch, batch, gen_img):
-    #     image_util.save_image(gen_img, self.output_img_dir, f"{epoch}_{batch}.jpg")
 
 
 def create_generator(z: int):
