@@ -1,7 +1,7 @@
 import random
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Final, List, Tuple
+from typing import Final, List
 
 import numpy as np
 from tensorflow.keras.layers import (Activation, BatchNormalization, Conv2D,
@@ -11,6 +11,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 
 from musabi_ml.ml.gan import GAN
+from musabi_ml.util.image_util import save_image
 
 
 @dataclass
@@ -68,9 +69,9 @@ class DCGAN(GAN):
         real_images: np.ndarray,  # real_images.shape => (data_size, height, width, RGB)
         batch_size: int,
         epochs: int,
-    ) -> Tuple[List, List]:
+        image_path: Path = None,
+    ) -> List:
         losses = []
-        generated_images = []
         batches = int(real_images.shape[0] / batch_size)
         for epoch in range(epochs):
             for batch in range(batches):
@@ -107,19 +108,19 @@ class DCGAN(GAN):
                     generator_loss=generator_loss,
                 )
             )
-            generated_images.append(fake_images_batch[0] * 127.5 + 127.5)
-            self.print_loss(losses, epoch)
-        return losses, generated_images
+            self.print_loss(losses[-1], epoch)
+            if image_path:
+                save_image(fake_images_batch[0] * 127.5 + 127.5)
+        return losses
 
     def predict(self, noise):
         return self.generator.predict(noise)
 
-    def save(self, output_dir_path: Path):
+    def save(self, output_dir_path: Path) -> None:
         self.generator.save(str(output_dir_path))
 
-    def print_loss(self, losses, epoch):
-        loss: DCGANLoss = losses[-1]
-        loss_info = f"epoch: {epoch}, " \
+    def print_loss(self, loss: DCGANLoss, epoch: int) -> None:
+        loss_info = f"epoch: {epoch} -> " \
             f"discriminator_loss: {loss.discriminator_loss}, " \
             f"generator_loss: {loss.generator_loss}"
         print(loss_info)
