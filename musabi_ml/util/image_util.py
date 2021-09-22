@@ -11,3 +11,9 @@ def load_images(dir_path: Path, target_suffix: List[str] = [".jpg"]) -> np.ndarr
         if i.suffix in target_suffix:
             result.append(np.array(Image.open(i)))
     return np.array(result)
+
+
+def save_image(image: np.ndarray, dir_path: Path, img_name: str) -> None:
+    Image.fromarray(image.astype(np.uint8)).save(
+        dir_path / img_name
+    )
