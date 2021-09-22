@@ -1,7 +1,8 @@
-import numpy as np
 from pathlib import Path
-from PIL import Image
 from typing import List
+
+import numpy as np
+from PIL import Image
 
 
 def load_images(dir_path: Path, target_suffix: List[str] = [".jpg"]) -> np.ndarray:

@@ -1,21 +1,14 @@
-import numpy as np
 import random
 from dataclasses import dataclass
 from pathlib import Path
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import (
-    Activation,
-    BatchNormalization,
-    Conv2D,
-    Dense,
-    Dropout,
-    Flatten,
-    LeakyReLU,
-    UpSampling2D,
-    Reshape,
-)
-from tensorflow.keras.optimizers import Adam
 from typing import Final, List, Tuple
+
+import numpy as np
+from tensorflow.keras.layers import (Activation, BatchNormalization, Conv2D,
+                                     Dense, Dropout, Flatten, LeakyReLU,
+                                     Reshape, UpSampling2D)
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam
 
 from musabi_ml.ml.gan import GAN
 
