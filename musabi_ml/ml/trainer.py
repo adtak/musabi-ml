@@ -13,8 +13,8 @@ from musabi_ml.ml.dcgan import DCGAN, DCGANLoss, DCGANSetting
 
 
 class Trainer(object):
-    def __init__(self, train_data_dir: str, output_dir: str):
-        self.train_data_dir = Path(train_data_dir)
+    def __init__(self, input_dir: str, output_dir: str):
+        self.input_dir = Path(input_dir)
         output_dir_name = datetime.now().strftime("%Y%m%d_%H_%M_%S")
         self.output_dir = Path(output_dir) / output_dir_name
         self.output_img_dir = Path(self.output_dir) / "generated_img"
@@ -27,24 +27,22 @@ class Trainer(object):
         self.dcgan = DCGAN.for_train(self.settings)
         self.loss_list: List[DCGANLoss] = None
 
-    def train(self, epochs: int, batch_size: int) -> None:
+    def train(self, batch_size: int, epochs: int) -> None:
         print("--Train start----------------------------------")
 
-        train_imgs = image_util.load_images(self.train_data_dir)
+        train_imgs = image_util.load_images(self.input_dir)
         train_imgs = np.array(random.sample(list(train_imgs), len(train_imgs)))
-        losses = self.dcgan.fit(train_imgs, batch_size, epochs)
+        losses = self.dcgan.fit(train_imgs, batch_size, epochs, self.output_img_dir)
         self.loss_list = losses
 
         print("--Train end----------------------------------")
 
     def save_model(self):
-        self.dcgan.save_generator(self.output_model_dir / "trained_model")
+        self.dcgan.save(self.output_model_dir)
 
     def plot_loss(self):
-        discriminator_losses = np.array(self.loss_list.map(lambda x: x.discriminator_loss))
-        generator_losses = np.array(self.loss_list.map(lambda x: x.generator_loss))
-        # discriminator_losses = np.array([loss.discriminator_loss for loss in self.loss_list])
-        # generator_losses = np.array([loss.generator_loss for loss in self.loss_list])
+        discriminator_losses = np.array([loss.discriminator_loss for loss in self.loss_list])
+        generator_losses = np.array([loss.generator_loss for loss in self.loss_list])
 
         sns.set_style("whitegrid")
         _, ax = plt.subplots(figsize=(15, 5))
