@@ -48,10 +48,6 @@ class DCGAN(GAN):
         self._compile()
         return self
 
-    @classmethod
-    def for_predict(cls, output_dir_path: Path):
-        pass
-
     def _compile(self):
         self.discriminator.compile(
             loss="binary_crossentropy",
