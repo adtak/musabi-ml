@@ -1,9 +1,9 @@
 import os
-
 import urllib
 from pathlib import Path
-from icrawler.builtin import BingImageCrawler
 from typing import List
+
+from icrawler.builtin import BingImageCrawler
 
 
 class ImageCrawler(object):
