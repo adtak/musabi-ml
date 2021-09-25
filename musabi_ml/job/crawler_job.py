@@ -1,6 +1,6 @@
 import argparse
 
-from musabi_ml.util.image_crawler import ImageCrawler
+from musabi_ml.util.crawler_util import ImageCrawler
 import musabi_ml.util.image_util as image_util
 
 

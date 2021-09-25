@@ -1,5 +1,6 @@
 import os
 
+import urllib
 from pathlib import Path
 from icrawler.builtin import BingImageCrawler
 from typing import List
@@ -14,7 +15,6 @@ class ImageCrawler(object):
         filters = dict(
             size="large",
             type="photo",
-            # license="creativecommons",
             layout="square")
 
         self.crawler.crawl(keyword=keyword, filters=filters, max_num=max_num)
@@ -23,3 +23,11 @@ class ImageCrawler(object):
 
     def get_results(self) -> List[str]:
         return os.listdir(self.output_dir)
+
+
+def download_file(url: str, download_file_path: Path):
+    try:
+        with urllib.request.urlopen(url) as web_file, open(download_file_path, 'wb') as local_file:
+            local_file.write(web_file.read())
+    except urllib.error.URLError as e:
+        print(e)
