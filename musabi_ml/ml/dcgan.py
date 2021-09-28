@@ -40,8 +40,8 @@ class DCGAN(GAN):
     def for_train(cls, settings: DCGANSetting) -> 'DCGAN':
         self = cls()
         self.settings = settings
-        self.generator = create_generator(self.settings.z_dim)
-        self.discriminator = create_discriminator(
+        self.generator = create_prototype_generator(self.settings.z_dim)
+        self.discriminator = create_prototype_discriminator(
             [self.settings.image_height, self.settings.image_width, self.settings.image_RGB]
         )
         self.dcgan = Sequential([self.generator, self.discriminator])
@@ -126,7 +126,7 @@ class DCGAN(GAN):
         print(loss_info)
 
 
-def create_generator(z: int):
+def create_prototype_generator(z: int):
     noise_shape = (z,)
     model = Sequential()
 
@@ -166,7 +166,7 @@ def create_generator(z: int):
     return model
 
 
-def create_discriminator(img_shape):
+def create_prototype_discriminator(img_shape):
     model = Sequential()
 
     # 1080*1080*3 -> 540*540*64
