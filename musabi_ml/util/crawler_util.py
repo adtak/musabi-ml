@@ -131,7 +131,7 @@ class MySelenium:
                 traceback.print_exc()
         return url_list
 
-    def crawle_brand_page(self, url):
+    def crawle_brand_page(self, url, exclude_url) -> List[str]:
         self.driver.get(url)
         url_list = []
         self.load_more('VIEW MORE LINES')
@@ -139,5 +139,7 @@ class MySelenium:
         line_url = [e.find_element_by_tag_name('a').get_attribute('href') for e in elements]
         print(f'Found {len(line_url)} lines')
         for url in line_url:
+            if url in exclude_url:
+                continue
             url_list += self.crawle_line_page(url)
         return url_list
